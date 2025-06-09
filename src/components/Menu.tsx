@@ -1,8 +1,11 @@
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { Star, Clock, Flame } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -76,27 +79,65 @@ const Menu = () => {
     switch (tag.toLowerCase()) {
       case 'bestseller':
       case 'popular':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-gradient-to-r from-orange-400 to-orange-600 text-white';
       case 'vegan':
       case 'healthy':
-        return 'bg-green-100 text-green-800';
+        return 'bg-gradient-to-r from-green-400 to-green-600 text-white';
       case 'spicy':
-        return 'bg-red-100 text-red-800';
+        return 'bg-gradient-to-r from-red-400 to-red-600 text-white';
       case 'student special':
       case 'value deal':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white';
+    }
+  };
+
+  const getTagIcon = (tag: string) => {
+    switch (tag.toLowerCase()) {
+      case 'bestseller':
+      case 'popular':
+        return <Star size={12} />;
+      case 'spicy':
+        return <Flame size={12} />;
+      default:
+        return null;
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6
+      }
     }
   };
 
   if (loading) {
     return (
-      <section id="menu" className="py-20 bg-cafe-beige/30">
+      <section id="menu" className="py-20 bg-gradient-to-br from-cafe-beige/20 to-cafe-white/50">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Loading menu...</p>
+            <motion.div 
+              className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary mx-auto mb-4"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+            <p className="text-lg text-secondary">Loading our delicious menu...</p>
           </div>
         </div>
       </section>
@@ -104,86 +145,153 @@ const Menu = () => {
   }
 
   return (
-    <section id="menu" className="py-20 bg-cafe-beige/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-primary mb-4">
+    <section id="menu" className="py-20 bg-gradient-to-br from-cafe-beige/20 to-cafe-white/50 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-10 left-10 text-6xl">🌮</div>
+        <div className="absolute top-32 right-20 text-4xl">☕</div>
+        <div className="absolute bottom-20 left-20 text-5xl">🥑</div>
+        <div className="absolute bottom-10 right-10 text-3xl">🌶️</div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="font-display text-5xl md:text-6xl font-bold text-primary mb-6">
             Our Menu
           </h2>
-          <p className="text-xl text-secondary max-w-2xl mx-auto">
-            Crafted with love for the young and hungry souls
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6"></div>
+          <p className="text-xl md:text-2xl text-secondary max-w-3xl mx-auto leading-relaxed">
+            Crafted with love for the young and hungry souls. Every dish tells a story of flavor and passion.
           </p>
-        </div>
+        </motion.div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
+        <motion.div 
+          className="flex flex-wrap justify-center gap-4 mb-12"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <motion.button
+            onClick={() => setActiveCategory('all')}
+            className={`px-8 py-4 rounded-full font-semibold transition-all duration-300 ${
+              activeCategory === 'all'
+                ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-xl scale-105'
+                : 'bg-white text-primary hover:bg-primary/10 hover:scale-105 shadow-lg'
+            }`}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            variants={itemVariants}
+          >
+            All Items
+          </motion.button>
           {categories.map((category) => (
-            <button
+            <motion.button
               key={category.id}
               onClick={() => setActiveCategory(category.slug)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+              className={`px-8 py-4 rounded-full font-semibold transition-all duration-300 ${
                 activeCategory === category.slug
-                  ? 'bg-primary text-primary-foreground shadow-lg scale-105'
-                  : 'bg-white text-primary hover:bg-primary/10 hover:scale-105'
+                  ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-xl scale-105'
+                  : 'bg-white text-primary hover:bg-primary/10 hover:scale-105 shadow-lg'
               }`}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              variants={itemVariants}
             >
               {category.name}
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
 
         {/* Menu Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {filteredItems.map((item, index) => (
-            <Card 
-              key={item.id} 
-              className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 bg-white border-0 overflow-hidden"
-              style={{ animationDelay: `${index * 0.1}s` }}
+            <motion.div
+              key={item.id}
+              variants={itemVariants}
+              whileHover={{ y: -5, rotateY: 5 }}
+              className="perspective-1000"
             >
-              <div className="relative overflow-hidden">
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute top-4 right-4">
-                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full font-bold">
-                    ₹{item.price}
-                  </span>
-                </div>
-              </div>
-              
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-primary group-hover:text-secondary transition-colors">
-                  {item.name}
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-gray-600 mb-4">{item.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {item.tags?.map((tag) => (
-                    <Badge 
-                      key={tag} 
-                      className={`${getTagColor(tag)} border-0`}
+              <Card className="group hover:shadow-2xl transition-all duration-500 bg-white border-0 overflow-hidden relative">
+                <div className="relative overflow-hidden">
+                  <motion.img
+                    src={item.image_url}
+                    alt={item.name}
+                    className="w-full h-52 object-cover"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.6 }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute top-4 right-4">
+                    <motion.span 
+                      className="bg-gradient-to-r from-primary to-secondary text-primary-foreground px-4 py-2 rounded-full font-bold text-lg shadow-lg"
+                      whileHover={{ scale: 1.1 }}
                     >
-                      {tag}
-                    </Badge>
-                  ))}
+                      ₹{item.price}
+                    </motion.span>
+                  </div>
+                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <Button size="sm" className="bg-white/90 text-primary hover:bg-white">
+                      <Clock size={14} className="mr-1" />
+                      Order Now
+                    </Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+                
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl font-bold text-primary group-hover:text-secondary transition-colors duration-300">
+                    {item.name}
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent>
+                  <p className="text-gray-600 mb-4 leading-relaxed">{item.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags?.map((tag) => (
+                      <Badge 
+                        key={tag} 
+                        className={`${getTagColor(tag)} border-0 shadow-md flex items-center gap-1`}
+                      >
+                        {getTagIcon(tag)}
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="text-center mt-12">
-          <a 
-            href="#" 
-            className="inline-flex items-center text-primary hover:text-secondary font-medium text-lg transition-colors"
+        <motion.div 
+          className="text-center mt-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Download Full Menu PDF →
-          </a>
-        </div>
+            <Button className="bg-gradient-to-r from-primary to-secondary text-primary-foreground px-8 py-4 text-lg font-semibold shadow-xl">
+              Download Full Menu PDF
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
