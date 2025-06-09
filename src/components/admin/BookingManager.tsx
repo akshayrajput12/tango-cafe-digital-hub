@@ -21,9 +21,10 @@ interface Booking {
   booking_date: string;
   booking_time: string;
   guests_count: number;
-  special_requests: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  created_at: string;
+  special_requests: string | null;
+  status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 const BookingManager = () => {
@@ -76,7 +77,7 @@ const BookingManager = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null) => {
     switch (status) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
@@ -129,7 +130,7 @@ const BookingManager = () => {
                   <TableCell>{booking.guests_count}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.status)}`}>
-                      {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                      {booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Unknown'}
                     </span>
                   </TableCell>
                   <TableCell>
