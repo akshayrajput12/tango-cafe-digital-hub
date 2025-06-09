@@ -1,79 +1,76 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+
+interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  tags: string[];
+  is_available: boolean;
+  menu_categories: {
+    name: string;
+    slug: string;
+  };
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = [
-    { id: 'all', name: 'All Items' },
-    { id: 'beverages', name: 'Beverages' },
-    { id: 'snacks', name: 'Snacks' },
-    { id: 'combos', name: 'Combos' },
-    { id: 'desserts', name: 'Desserts' },
-  ];
+  useEffect(() => {
+    fetchMenuData();
+  }, []);
 
-  const menuItems = [
-    {
-      id: 1,
-      name: 'Tango Cold Brew',
-      category: 'beverages',
-      price: '₹180',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      description: 'Rich, smooth cold brew with a hint of vanilla',
-      tags: ['Bestseller', 'Caffeinated']
-    },
-    {
-      id: 2,
-      name: 'Spicy Chicken Taco',
-      category: 'snacks',
-      price: '₹220',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      description: 'Grilled chicken with jalapeños and cheese',
-      tags: ['Spicy', 'Popular']
-    },
-    {
-      id: 3,
-      name: 'Study Buddy Combo',
-      category: 'combos',
-      price: '₹350',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      description: 'Coffee + sandwich + cookie - perfect for long study sessions',
-      tags: ['Student Special', 'Value Deal']
-    },
-    {
-      id: 4,
-      name: 'Avocado Toast',
-      category: 'snacks',
-      price: '₹240',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      description: 'Multigrain bread topped with fresh avocado and herbs',
-      tags: ['Vegan', 'Healthy']
-    },
-    {
-      id: 5,
-      name: 'Chocolate Lava Cake',
-      category: 'desserts',
-      price: '₹180',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      description: 'Warm chocolate cake with molten center',
-      tags: ['Sweet', 'Popular']
-    },
-    {
-      id: 6,
-      name: 'Mango Smoothie',
-      category: 'beverages',
-      price: '₹160',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      description: 'Fresh mango blended with yogurt and honey',
-      tags: ['Fresh', 'Seasonal']
+  const fetchMenuData = async () => {
+    try {
+      // Fetch categories
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('menu_categories')
+        .select('*')
+        .order('name');
+
+      if (categoriesError) throw categoriesError;
+
+      // Fetch menu items with categories
+      const { data: menuData, error: menuError } = await supabase
+        .from('menu_items')
+        .select(`
+          *,
+          menu_categories (
+            name,
+            slug
+          )
+        `)
+        .eq('is_available', true)
+        .order('created_at', { ascending: false });
+
+      if (menuError) throw menuError;
+
+      setCategories(categoriesData || []);
+      setMenuItems(menuData || []);
+    } catch (error) {
+      console.error('Error fetching menu data:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filteredItems = activeCategory === 'all' 
     ? menuItems 
-    : menuItems.filter(item => item.category === activeCategory);
+    : menuItems.filter(item => item.menu_categories?.slug === activeCategory);
 
   const getTagColor = (tag: string) => {
     switch (tag.toLowerCase()) {
@@ -93,6 +90,19 @@ const Menu = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <section id="menu" className="py-20 bg-cafe-beige/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading menu...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="menu" className="py-20 bg-cafe-beige/30">
       <div className="container mx-auto px-4">
@@ -110,9 +120,9 @@ const Menu = () => {
           {categories.map((category) => (
             <button
               key={category.id}
-              onClick={() => setActiveCategory(category.id)}
+              onClick={() => setActiveCategory(category.slug)}
               className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
-                activeCategory === category.id
+                activeCategory === category.slug
                   ? 'bg-primary text-primary-foreground shadow-lg scale-105'
                   : 'bg-white text-primary hover:bg-primary/10 hover:scale-105'
               }`}
@@ -132,13 +142,13 @@ const Menu = () => {
             >
               <div className="relative overflow-hidden">
                 <img
-                  src={item.image}
+                  src={item.image_url}
                   alt={item.name}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute top-4 right-4">
                   <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full font-bold">
-                    {item.price}
+                    ₹{item.price}
                   </span>
                 </div>
               </div>
@@ -152,7 +162,7 @@ const Menu = () => {
               <CardContent>
                 <p className="text-gray-600 mb-4">{item.description}</p>
                 <div className="flex flex-wrap gap-2">
-                  {item.tags.map((tag) => (
+                  {item.tags?.map((tag) => (
                     <Badge 
                       key={tag} 
                       className={`${getTagColor(tag)} border-0`}

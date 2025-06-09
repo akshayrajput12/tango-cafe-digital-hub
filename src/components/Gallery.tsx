@@ -1,8 +1,19 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface GalleryImage {
+  id: string;
+  title: string;
+  image_url: string;
+  category: string;
+  alt_text: string;
+}
 
 const Gallery = () => {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const filters = [
     { id: 'all', name: 'All' },
@@ -12,60 +23,42 @@ const Gallery = () => {
     { id: 'customers', name: 'Happy Faces' },
   ];
 
-  const galleryImages = [
-    {
-      id: 1,
-      src: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'ambience',
-      alt: 'Cozy cafe interior with warm lighting'
-    },
-    {
-      id: 2,
-      src: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'food',
-      alt: 'Delicious taco platter'
-    },
-    {
-      id: 3,
-      src: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'ambience',
-      alt: 'Outdoor seating area'
-    },
-    {
-      id: 4,
-      src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'events',
-      alt: 'Live music event at the cafe'
-    },
-    {
-      id: 5,
-      src: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'customers',
-      alt: 'Happy customers enjoying their meal'
-    },
-    {
-      id: 6,
-      src: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'food',
-      alt: 'Fresh coffee and pastries'
-    },
-    {
-      id: 7,
-      src: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'ambience',
-      alt: 'Study corner with comfortable seating'
-    },
-    {
-      id: 8,
-      src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'events',
-      alt: 'Open mic night performance'
+  useEffect(() => {
+    fetchGalleryImages();
+  }, []);
+
+  const fetchGalleryImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setGalleryImages(data || []);
+    } catch (error) {
+      console.error('Error fetching gallery images:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filteredImages = activeFilter === 'all' 
     ? galleryImages 
     : galleryImages.filter(img => img.category === activeFilter);
+
+  if (loading) {
+    return (
+      <section id="gallery" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading gallery...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="gallery" className="py-20 bg-white">
@@ -105,8 +98,8 @@ const Gallery = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <img
-                src={image.src}
-                alt={image.alt}
+                src={image.image_url}
+                alt={image.alt_text}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />

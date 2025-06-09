@@ -9,13 +9,206 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          guests_count: number
+          id: string
+          special_requests: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          guests_count: number
+          id?: string
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          guests_count?: number
+          id?: string
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gallery_items: {
+        Row: {
+          alt_text: string | null
+          category: string
+          created_at: string | null
+          id: string
+          image_url: string
+          title: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          category: string
+          created_at?: string | null
+          id?: string
+          image_url: string
+          title?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          category?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
+      instagram_posts: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          id: string
+          image_url: string
+          is_featured: boolean | null
+          post_url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          image_url: string
+          is_featured?: boolean | null
+          post_url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          is_featured?: boolean | null
+          post_url?: string
+        }
+        Relationships: []
+      }
+      menu_categories: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      menu_items: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean | null
+          name: string
+          price: number
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          name: string
+          price: number
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          name?: string
+          price?: number
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "menu_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
