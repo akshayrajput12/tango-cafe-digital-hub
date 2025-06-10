@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Star, Clock, Flame } from 'lucide-react';
+import { Star, Clock, Flame, Eye } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -28,7 +28,7 @@ interface Category {
 }
 
 const Menu = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,13 @@ const Menu = () => {
   useEffect(() => {
     fetchMenuData();
   }, []);
+
+  useEffect(() => {
+    // Set first category as active when categories are loaded
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0].slug);
+    }
+  }, [categories, activeCategory]);
 
   const fetchMenuData = async () => {
     try {
@@ -71,9 +78,9 @@ const Menu = () => {
     }
   };
 
-  const filteredItems = activeCategory === 'all' 
-    ? menuItems 
-    : menuItems.filter(item => item.menu_categories?.slug === activeCategory);
+  const filteredItems = activeCategory 
+    ? menuItems.filter(item => item.menu_categories?.slug === activeCategory)
+    : menuItems;
 
   const getTagColor = (tag: string) => {
     switch (tag.toLowerCase()) {
@@ -179,24 +186,11 @@ const Menu = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <motion.button
-            onClick={() => setActiveCategory('all')}
-            className={`px-8 py-4 rounded-full font-semibold transition-all duration-300 ${
-              activeCategory === 'all'
-                ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-xl scale-105'
-                : 'bg-white text-primary hover:bg-primary/10 hover:scale-105 shadow-lg'
-            }`}
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            variants={itemVariants}
-          >
-            All Items
-          </motion.button>
           {categories.map((category) => (
             <motion.button
               key={category.id}
               onClick={() => setActiveCategory(category.slug)}
-              className={`px-8 py-4 rounded-full font-semibold transition-all duration-300 ${
+              className={`px-8 py-4 font-semibold transition-all duration-300 ${
                 activeCategory === category.slug
                   ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-xl scale-105'
                   : 'bg-white text-primary hover:bg-primary/10 hover:scale-105 shadow-lg'
@@ -237,16 +231,16 @@ const Menu = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-4 right-4">
                     <motion.span 
-                      className="bg-gradient-to-r from-primary to-secondary text-primary-foreground px-4 py-2 rounded-full font-bold text-lg shadow-lg"
+                      className="bg-gradient-to-r from-primary to-secondary text-primary-foreground px-4 py-2 font-bold text-lg shadow-lg"
                       whileHover={{ scale: 1.1 }}
                     >
                       ₹{item.price}
                     </motion.span>
                   </div>
-                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <Button size="sm" className="bg-white/90 text-primary hover:bg-white">
-                      <Clock size={14} className="mr-1" />
-                      Order Now
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <Button size="lg" className="bg-white/90 text-primary hover:bg-white">
+                      <Eye size={18} className="mr-2" />
+                      View Details
                     </Button>
                   </div>
                 </div>
