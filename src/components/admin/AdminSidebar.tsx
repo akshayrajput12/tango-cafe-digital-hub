@@ -6,7 +6,9 @@ import {
   Image, 
   Calendar, 
   Instagram, 
-  LogOut 
+  LogOut,
+  CalendarDays,
+  Tag
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -22,6 +24,8 @@ const AdminSidebar = ({ activeSection, setActiveSection, user, onSignOut }: Admi
     { id: 'menu', label: 'Menu Management', icon: Menu },
     { id: 'gallery', label: 'Gallery', icon: Image },
     { id: 'bookings', label: 'Bookings', icon: Calendar },
+    { id: 'events', label: 'Events', icon: CalendarDays },
+    { id: 'offers', label: 'Offers', icon: Tag },
     { id: 'instagram', label: 'Instagram Posts', icon: Instagram },
   ];
 

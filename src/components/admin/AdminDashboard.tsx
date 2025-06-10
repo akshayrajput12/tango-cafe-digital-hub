@@ -8,6 +8,8 @@ import GalleryManager from './GalleryManager';
 import BookingManager from './BookingManager';
 import InstagramManager from './InstagramManager';
 import DashboardOverview from './DashboardOverview';
+import EventManager from './EventManager';
+import OfferManager from './OfferManager';
 
 interface AdminDashboardProps {
   user: User;
@@ -32,6 +34,10 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
         return <BookingManager />;
       case 'instagram':
         return <InstagramManager />;
+      case 'events':
+        return <EventManager />;
+      case 'offers':
+        return <OfferManager />;
       default:
         return <DashboardOverview />;
     }

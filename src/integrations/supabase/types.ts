@@ -51,6 +51,48 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_date: string
+          event_time: string
+          id: string
+          image_url: string | null
+          price: string | null
+          recurring: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_time: string
+          id?: string
+          image_url?: string | null
+          price?: string | null
+          recurring?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string
+          id?: string
+          image_url?: string | null
+          price?: string | null
+          recurring?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery_items: {
         Row: {
           alt_text: string | null
@@ -172,6 +214,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      offers: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          id: string
+          status: string | null
+          title: string
+          updated_at: string
+          valid_until: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description: string
+          id?: string
+          status?: string | null
+          title: string
+          updated_at?: string
+          valid_until: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+          valid_until?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
